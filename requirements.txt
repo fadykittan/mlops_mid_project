@@ -1,10 +1,14 @@
 joblib==1.5.1
 numpy==2.2.6
 pandas==2.3.0
+psycopg==3.2.9
+psycopg-binary==3.2.9
 python-dateutil==2.9.0.post0
 pytz==2025.2
 scikit-learn==1.6.1
 scipy==1.15.3
 six==1.17.0
+SQLAlchemy==2.0.27
 threadpoolctl==3.6.0
+typing_extensions==4.14.0
 tzdata==2025.2
