@@ -1,5 +1,6 @@
 from load.db_loader import PostgresLoader
 from model.predictor import Predictor
+from writer.db_writer import DBWriter
 import pandas as pd
 
 def main():
@@ -71,8 +72,31 @@ select * FROM customer_data
         print(f"Predicted Churns: {churn_count}")
         print(f"Churn Rate: {churn_rate:.2f}%")
 
+        # Write predictions to database
+        write_predictions_to_db(predictions)
+        print("\nPredictions written to database successfully.")
+
     except Exception as e:
         print(f"An error occurred: {str(e)}")
+
+def write_predictions_to_db(predictions: list):
+    # Initialize the writer
+    writer = DBWriter(
+        host='localhost',
+        port=5432,
+        database='mlops_db',
+        user='mlops',
+        password='mlops'
+    )
+
+    # Create a DataFrame with predictions
+    predictions_df = pd.DataFrame({
+        'id': range(len(predictions)),
+        'predict_result': predictions
+    })
+
+    # Write predictions to database
+    writer.write_predictions(predictions_df)
 
 if __name__ == "__main__":
     main() 
