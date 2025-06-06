@@ -1,6 +1,7 @@
 import pandas as pd
 from sqlalchemy import create_engine, text
 from typing import Optional
+from datetime import datetime
 
 class DBWriter:
     """
@@ -42,13 +43,17 @@ class DBWriter:
             create_table_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 id INTEGER PRIMARY KEY,
-                predict_result INTEGER
+                predict_result INTEGER,
+                prediction_date DATE
             )
             """
             
             with self.engine.connect() as connection:
                 connection.execute(text(create_table_query))
                 connection.commit()
+            
+            # Add today's date to the DataFrame
+            df['prediction_date'] = datetime.now().date()
             
             # Write the DataFrame to the database
             df.to_sql(
