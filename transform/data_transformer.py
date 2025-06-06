@@ -46,6 +46,14 @@ class DataTransformer:
         
         # Create dummy variables for Contract
         contract_dummies = pd.get_dummies(dataset['Contract']).astype(int)
+        
+        # Ensure all required contract columns exist
+        required_contracts = ['Month-to-month', 'One year', 'Two year']
+        for contract in required_contracts:
+            if contract not in contract_dummies.columns:
+                contract_dummies[contract] = 0
+        
+        # Join with the original dataset
         dataset = dataset.join(contract_dummies)
         
         return dataset

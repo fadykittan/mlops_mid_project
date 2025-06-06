@@ -11,3 +11,4 @@ SQLAlchemy==2.0.27
 threadpoolctl==3.6.0
 typing_extensions==4.14.0
 tzdata==2025.2
+flask==3.0.2
