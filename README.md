@@ -1,6 +1,13 @@
 # mlops-mid-project
 MLOps Mid Project
 
+## Intro
+This is a mono-repo, the structure:
+- app -> the app files
+- project_materials -> the materials of the project
+- data_base -> data and DB script
+
+
 ## Data Base
 Create DB with the following user and password
 ```
