@@ -3,6 +3,42 @@ import pandas as pd
 from model.predictor import Predictor
 from transform.data_transformer import DataTransformer
 from api.models import CustomerData
+import logging
+import json
+import os
+from datetime import datetime
+
+# Configure logging
+log_dir = 'logs'
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName
+        }
+        if hasattr(record, 'extra'):
+            log_record.update(record.extra)
+        return json.dumps(log_record)
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+# Add file handler
+file_handler = logging.FileHandler(os.path.join(log_dir, f'app_{datetime.now().strftime("%Y%m%d")}.log'))
+file_handler.setFormatter(JSONFormatter())
+logger.addHandler(file_handler)
+
+# Add console handler
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(JSONFormatter())
+logger.addHandler(console_handler)
 
 app = Flask(__name__)
 
@@ -10,12 +46,14 @@ app = Flask(__name__)
 predictor = Predictor()
 model_path = 'model/new_churn_model.pickle'
 predictor.load_model(model_path)
+logger.info("Model loaded successfully", extra={"model_path": model_path})
 
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
         # Get data from request
         data = request.get_json()
+        logger.info("Received prediction request", extra={"request_data": data})
         
         # Create CustomerData instance
         customer = CustomerData(
@@ -28,6 +66,7 @@ def predict():
         # Validate data
         is_valid, error_message = customer.validate()
         if not is_valid:
+            logger.warning("Invalid data received", extra={"error": error_message})
             return jsonify({'error': error_message}), 400
         
         # Convert to DataFrame
@@ -40,6 +79,7 @@ def predict():
         
         # Make prediction using the predictor (which uses DataTransformer internally)
         prediction = predictor.predict(df)
+        logger.info("Prediction made successfully", extra={"prediction": int(prediction[0])})
         
         # Return result
         return jsonify({
@@ -48,7 +88,9 @@ def predict():
         })
         
     except Exception as e:
+        logger.error("Error during prediction", extra={"error": str(e)}, exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    logger.info("Starting Flask application", extra={"port": 8000})
     app.run(host='0.0.0.0', port=8000) 

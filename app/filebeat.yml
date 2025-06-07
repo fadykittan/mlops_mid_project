@@ -1,0 +1,36 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /app/logs/*.log
+  json.keys_under_root: true
+  json.add_error_key: true
+  json.message_key: message
+  json.ignore_decoding_error: true
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - timestamp:
+      field: timestamp
+      timezone: UTC
+      layouts:
+        - "2006-01-02T15:04:05.000Z"
+        - "2006-01-02T15:04:05Z"
+
+setup.template.name: "churn-prediction"
+setup.template.pattern: "churn-prediction-*"
+setup.ilm.enabled: false
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  index: "churn-prediction-%{+yyyy.MM.dd}"
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat
+  keepfiles: 7
+  permissions: 0644 
