@@ -4,7 +4,7 @@ from model.predictor import Predictor
 
 def main():
     # Initialize the CSV loader with the path to the CSV file
-    loader = CSVLoader("data/database_input.csv")
+    loader = CSVLoader("../data_base/database_input.csv")
     
     try:
         # Load the data
