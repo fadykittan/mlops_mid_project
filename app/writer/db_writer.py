@@ -2,6 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from typing import Optional
 from datetime import datetime
+from utils.logger import setup_logger
 
 class DBWriter:
     """
@@ -19,8 +20,13 @@ class DBWriter:
             user (str): Database user
             password (str): Database password
         """
+        self.logger = setup_logger(__name__)
         self.connection_string = f"postgresql://{user}:{password}@{host}:{port}/{database}"
         self.engine = create_engine(self.connection_string)
+        self.logger.info("DBWriter initialized", extra={
+            "host": host,
+            "database": database
+        })
         
     def write_predictions(self, df: pd.DataFrame, table_name: str = 'prediction_results') -> None:
         """
@@ -34,6 +40,11 @@ class DBWriter:
             Exception: If there's an error connecting to the database or writing the data
         """
         try:
+            self.logger.info("Writing predictions to database", extra={
+                "table": table_name,
+                "rows": len(df)
+            })
+            
             # Ensure the DataFrame has the required columns
             required_columns = ['id', 'predict_result']
             if not all(col in df.columns for col in required_columns):
@@ -63,5 +74,11 @@ class DBWriter:
                 index=False
             )
             
+            self.logger.info("Predictions written successfully")
+            
         except Exception as e:
+            self.logger.error("Error writing predictions", extra={
+                "error": str(e),
+                "table": table_name
+            }, exc_info=True)
             raise Exception(f"Error writing predictions to PostgreSQL: {str(e)}") 
