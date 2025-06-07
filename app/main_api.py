@@ -3,42 +3,10 @@ import pandas as pd
 from model.predictor import Predictor
 from transform.data_transformer import DataTransformer
 from api.models import CustomerData
-import logging
-import json
-import os
-from datetime import datetime
+from utils.logger import setup_logger
 
-# Configure logging
-log_dir = 'logs'
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-
-class JSONFormatter(logging.Formatter):
-    def format(self, record):
-        log_record = {
-            "timestamp": datetime.utcnow().isoformat(),
-            "level": record.levelname,
-            "message": record.getMessage(),
-            "module": record.module,
-            "function": record.funcName
-        }
-        if hasattr(record, 'extra'):
-            log_record.update(record.extra)
-        return json.dumps(log_record)
-
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-# Add file handler
-file_handler = logging.FileHandler(os.path.join(log_dir, f'app_{datetime.now().strftime("%Y%m%d")}.log'))
-file_handler.setFormatter(JSONFormatter())
-logger.addHandler(file_handler)
-
-# Add console handler
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(JSONFormatter())
-logger.addHandler(console_handler)
+# Initialize logger
+logger = setup_logger(__name__)
 
 app = Flask(__name__)
 
