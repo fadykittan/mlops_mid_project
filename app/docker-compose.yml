@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  app:
+  app-api:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: churn-prediction-app
+    container_name: churn-prediction-app-api
     command: api
     ports:
       - "8000:8000"
@@ -16,6 +16,26 @@ services:
       - FLASK_ENV=development
     networks:
       - elastic-kibana_elastic
+      - app-network
+
+  app-db:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: churn-prediction-app-db
+    command: db
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./logs:/app/logs
+    environment:
+      - FLASK_APP=main_db.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/mlops_db
+      - DATABASE_HOST=host.docker.internal
+    networks:
+      - elastic-kibana_elastic
+      - app-network
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.12.1
@@ -29,8 +49,11 @@ services:
     networks:
       - elastic-kibana_elastic
     depends_on:
-      - app
+      - app-api
+      - app-db
 
 networks:
   elastic-kibana_elastic:
-    external: true 
+    external: true
+  app-network:
+    driver: bridge

@@ -3,18 +3,22 @@ from model.predictor import Predictor
 from writer.db_writer import DBWriter
 import pandas as pd
 from utils.logger import setup_logger
+import os
 
 # Initialize logger
 logger = setup_logger(__name__)
 
 def main():
-    # Database connection parameters
-    DB_HOST = "localhost"  # Replace with your database host
-    DB_PORT = 5432        # Replace with your database port
-    DB_NAME = "your_db"   # Replace with your database name
-    DB_USER = "your_user" # Replace with your database user
-    DB_PASS = "your_pass" # Replace with your database password
 
+    # Get database connection parameters from environment variables
+    DB_HOST = os.environ.get('DATABASE_HOST', 'localhost')
+    DB_PORT = '5432'
+    DB_NAME = 'mlops_db'
+    DB_USER = 'mlops'
+    DB_PASS = 'mlops'
+    
+    print(DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS)
+    
     # SQL query to fetch the data
     QUERY = """
 select * FROM customer_data
@@ -25,11 +29,11 @@ select * FROM customer_data
         
         # Initialize the database loader
         loader = PostgresLoader(
-            host='localhost',
-            port='5432',
-            database='mlops_db',
-            user='mlops',
-            password='mlops'
+            host=DB_HOST,
+            port=DB_PORT,
+            database=DB_NAME,
+            user=DB_USER,
+            password=DB_PASS
         )
 
         # Load data from database
@@ -93,7 +97,7 @@ select * FROM customer_data
         })
 
         # Write predictions to database
-        write_predictions_to_db(predictions)
+        write_predictions_to_db(predictions, DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS)
         print("\nPredictions written to database successfully.")
         logger.info("Process completed successfully")
 
@@ -101,16 +105,16 @@ select * FROM customer_data
         logger.error("Error in main process", extra={"error": str(e)}, exc_info=True)
         print(f"An error occurred: {str(e)}")
 
-def write_predictions_to_db(predictions: list):
+def write_predictions_to_db(predictions: list, DB_HOST: str, DB_PORT: str, DB_NAME: str, DB_USER: str, DB_PASS: str):
     logger.info("Writing predictions to database")
     
     # Initialize the writer
     writer = DBWriter(
-        host='localhost',
-        port=5432,
-        database='mlops_db',
-        user='mlops',
-        password='mlops'
+        host=DB_HOST,
+        port=DB_PORT,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS
     )
 
     # Create a DataFrame with predictions
