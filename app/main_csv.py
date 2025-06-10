@@ -4,7 +4,7 @@ from model.predictor import Predictor
 
 def main():
     # Initialize the CSV loader with the path to the CSV file
-    loader = CSVLoader("../data_base/database_input.csv")
+    loader = CSVLoader("data_base/database_input.csv")
     
     try:
         # Load the data
@@ -44,7 +44,7 @@ def main():
 
     try:
         # Load the model (replace with your actual model path)
-        model_path = 'model/new_churn_model.pickle'
+        model_path = 'app/model/new_churn_model.pickle'
         predictor.load_model(model_path)
 
         # Make predictions
