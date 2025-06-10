@@ -55,6 +55,8 @@ def main():
         for i, pred in enumerate(predictions):
             print(f"Customer {i+1}: {'Churn' if pred == 1 else 'No Churn'}")
 
+        print("\nRun on CSV file finished successfully!!!")
+
     except FileNotFoundError:
         print(f"Error: Model file not found at {model_path}")
         print("Please ensure the model file exists at the specified path.")
