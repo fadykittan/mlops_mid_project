@@ -1,6 +1,7 @@
 from load.db_loader import PostgresLoader
 from model.predictor import Predictor
 from writer.db_writer import DBWriter
+from data_monitor.drift_detector import DriftDetector
 import pandas as pd
 from utils.logger import setup_logger
 import os
@@ -58,6 +59,13 @@ select * FROM customer_data
             "rows": len(df),
             "columns": len(df.columns)
         })
+
+        # Check for data drift
+        print("\nChecking for data drift...")
+        logger.info("Checking for data drift")
+        drift_detector = DriftDetector()
+        drift_report_path = drift_detector.detect_drift(df)
+        logger.info(f"Drift report generated at: {drift_report_path}")
 
         # Initialize the predictor
         predictor = Predictor()
